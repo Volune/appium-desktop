@@ -72,8 +72,10 @@ export function openBrowserWindow (route, opts) {
 // the user saved
 export async function setSavedEnv () {
   const savedEnv = await settings.get('ENV');
-  process.env = {
-    ...process.env,
-    ...savedEnv || {},
-  };
+  // environment variable keys are case insensitive on Windows. Don't override process.env to keep the logic
+  if (savedEnv) {
+    Object.keys(savedEnv).forEach(key => {
+      process.env[key] = savedEnv[key];
+    });
+  }
 }
