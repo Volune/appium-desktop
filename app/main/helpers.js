@@ -1,9 +1,25 @@
 import { BrowserWindow, Menu } from 'electron';
+import Module from 'module';
 import settings from '../shared/settings';
 import path from 'path';
+import { fs } from 'appium-support';
 import i18n from '../configs/i18next.config';
+import B from 'bluebird';
 
 const isDev = process.env.NODE_ENV === 'development';
+
+
+export async function fixGlobalPath () {
+  const nodePath = process.env.NODE_PATH;
+  if (nodePath) {
+    let paths = nodePath.split(path.delimiter);
+    paths = await B.filter(paths, async aPath => {
+      return !!aPath && path.isAbsolute(aPath) && (await fs.exists(aPath));
+    });
+    Module.globalPaths.push(...paths);
+  }
+}
+
 
 export function openBrowserWindow (route, opts) {
   const defaultOpts = {

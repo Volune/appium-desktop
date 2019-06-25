@@ -1,7 +1,7 @@
 import i18n from './configs/i18next.config';
 import { app, BrowserWindow, Menu, webContents } from 'electron';
 import { initializeIpc } from './main/appium';
-import { setSavedEnv } from './main/helpers';
+import { fixGlobalPath, setSavedEnv } from './main/helpers';
 import rebuildMenus from './main/menus';
 import shellEnv from 'shell-env';
 import fixPath from 'fix-path';
@@ -47,6 +47,9 @@ const installExtensions = async () => {
 };
 
 app.on('ready', async () => {
+  // support third-party packages installed globally
+  await fixGlobalPath();
+
   await installExtensions();
 
   mainWindow = new BrowserWindow({
